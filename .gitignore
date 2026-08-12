@@ -1,0 +1,31 @@
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Local app data and databases
+*.sqlite
+*.sqlite3
+*.db
+data/
+local-data/
+
+# Diagnostics, logs, and temporary artifacts
+diagnostics/
+logs/
+tmp/
+cache/
+
+# Common generated files
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+dist/
+build/
+coverage/

@@ -1,0 +1,20 @@
+{
+  "name": "agent-fieldbook",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A dependency-light operator fieldbook for agentic project coordination.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "smoke": "node scripts/smoke-agent-fieldbook.mjs",
+    "security": "node tests/security_unit_tests.mjs && python3 -B tests/security_static_checks.py",
+    "validate": "bash scripts/validate-agent-fieldbook.sh",
+    "test": "npm run smoke && npm run security",
+    "check": "npm run validate"
+  },
+  "devDependencies": {
+    "vite": "^8.2.1"
+  }
+}
