@@ -1,0 +1,55 @@
+name: GH CLI Repository Creation Live Test
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test-gh-repo-create:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TEST_REPO: chatgpt-gh-cli-test-20260903
+    steps:
+      - name: Check gh CLI
+        run: gh --version | head -n 1
+
+      - name: Try repository creation with gh api
+        shell: bash
+        run: |
+          set +e
+          gh api --method POST /user/repos \
+            -f name="$TEST_REPO" \
+            -F private=true \
+            --jq '{full_name: .full_name, private: .private, message: .message}' \
+            > /tmp/gh-result.txt 2>&1
+          rc=$?
+          echo "gh_exit_code=$rc"
+          sed -E 's/(gh[pousr]_[A-Za-z0-9_]+)/[REDACTED]/g' /tmp/gh-result.txt
+
+      - name: Try direct REST if repository does not exist
+        shell: bash
+        run: |
+          if gh api /repos/khs0927/$TEST_REPO >/dev/null 2>&1; then
+            echo "repo_already_exists=true"
+            exit 0
+          fi
+          http_code=$(curl -sS -o /tmp/rest-result.json -w '%{http_code}' \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/user/repos \
+            -d "{\"name\":\"$TEST_REPO\",\"private\":true}")
+          echo "rest_http_code=$http_code"
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/rest-result.json'))
+          print('rest_full_name=' + str(d.get('full_name')))
+          print('rest_private=' + str(d.get('private')))
+          print('rest_message=' + str(d.get('message')))
+          PY
